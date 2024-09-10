@@ -26,6 +26,8 @@ void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
+  display.clearDisplay();
  
   Serial.println("Connecting");
   while(WiFi.status() != WL_CONNECTED) { 
@@ -36,8 +38,7 @@ void setup() {
   SPI.begin();   // Initiate SPI bus
   mfrc522.PCD_Init();  // Initiate MFRC522
   
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
-  display.clearDisplay();
+  
   display.drawBitmap(0, 0, pwr_bitmap, 128, 32, WHITE);
   display.display();
 
@@ -71,12 +72,11 @@ void loop() {
         return;
    
     display.println();
-
     byte bufferSize = mfrc522.uid.size;
 	String wyslij_ID;
     HTTPClient http;
 	http.begin(sprawdz_URL);
-	http.addHeader("Content-Type", "application/x-www-form-sprawdz_URLencoded");
+	http.addHeader("Content-Type", "application/x-www-form-URLencoded");
 	wyslij_ID = "wyslij_ID=";
 
      for (byte i = 0; i < bufferSize; i++) {
@@ -97,11 +97,11 @@ void loop() {
   Serial.print("payload : "); Serial.println(payload); 
   Serial.println("--------------------------------------------------");
 	
-	if (payload == "Database connection is OKOK")
-	display.println("Wbijaj byniu");
+	if (payload == "OK")
+	display.println("Potwierdzono - prosze wejsc!");
 
-	else if (payload == "Database connection is OKNOK")
-	display.println("Odrzucono");
+	else if (payload == "NOK")
+	display.println("Odrzucono - sprobuj ponownie");
 
     display.println();
     display.display();
