@@ -1,0 +1,72 @@
+body 
+{
+	background-image: url("prism.png");
+	font-family: Arial, sans-serif;  
+	margin-left: 100px;
+	margin-right: 100px;
+}
+/* do strony głównej - index.html*/
+.index_container
+{
+	width: 800px;
+	height:200px;
+	margin-left: 100px;
+	margin-right: 100px;
+	margin-top: 200px;
+	margin-bottom: 100px;
+}
+
+
+.dodaj 
+{
+	height:200px;
+	width: 200px;
+}
+
+.usun 
+{
+	height:200px;
+	width: 200px;
+}
+.lista
+{
+	height:200px;
+	width: 200px;
+}
+.zmiana 
+{
+	height:200px;
+	width: 200px;
+}
+.archiwum 
+{
+	height:200px;
+	width: 200px;
+}
+
+.index_powrot
+{
+	height:200px;
+	width: 200px;
+}
+.dodaj_kolejnego
+{
+	height:200px;
+	width: 200px;
+
+}
+		
+h1
+{
+	text-align: center;
+	font-size: 20px;
+	color: #FFFFFF
+}
+
+h2
+{
+	margin-top: 10px;
+	text-align: center;
+	font-size: 20px;
+	color: #FFFFFF
+}
