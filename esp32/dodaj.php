@@ -11,20 +11,25 @@ $result = mysqli_query($conn, "SELECT COUNT(ID) AS 'count' from uzytkownicy WHER
 $row = mysqli_fetch_array($result);
 $count = $row['count'];
 
-if ($count == 0) {
+if ($count != 0)
+echo "Użytkownik o takim numerze ID już istnieje w bazie danych. Proszę spróbować ponownie!";
+
+else if (strlen($ID) != 10)
+echo "Niepoprawny format numeru ID użytkownika. Proszę spróbować ponownie!";
+
+else {
 	
-  $sql = "INSERT INTO uzytkownicy(ID, Imie, Nazwisko) VALUES ('$ID','$imie','$nazwisko')";
   $result_add = mysqli_query($conn, "INSERT INTO uzytkownicy(ID, Imie, Nazwisko) VALUES ('$ID','$imie','$nazwisko')");
   
   if ($result_add == TRUE)
-  echo "Dodano użytkownika do bazy danych";
-
+  {
+  header("location: index.html");
+  exit;
+  }
   else
 	  echo "Wystąpił błąd w operacji dodawania użytkownika". $conn->error;
 }
-else 
-echo "Użytkownik o takim identyfikatorze już istnieje w bazie danych. Proszę spróbować ponownie!";	
-
+	
 ?>
 <!DOCTYPE HTML>
 
@@ -56,16 +61,6 @@ echo "Użytkownik o takim identyfikatorze już istnieje w bazie danych. Proszę 
 </head>
 
 <body>
-				<form>
-						<button type="submit" formaction="index.html" class="index_powrot bg-primary
-text-white"> <i class="bi bi-arrow-clockwise bg-primary
-text-white"></i>
-						Powrót do strony głównej
-						</button>
-						<button type="submit" formaction="dodaj.html" class="dodaj_kolejnego bg-success text-white">
-						<i class="bi bi-plus-square bg-success text-white "></i> Dodaj kolejnego użytkownika
-					</button>
-				</form>
 
 </body>
 

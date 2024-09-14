@@ -10,7 +10,6 @@ if (isset($_GET["ID"]))
 	
 	
 }
-header("location: lista_uzytkownikow.php");
+header("location: index.html");
 exit;
 
-?>
