@@ -3,67 +3,111 @@
 #include <MFRC522.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <WiFiClientSecure.h>
 #include <WiFi.h> 
 #include <HTTPClient.h> 
-#include "bitmapy.h"
+#include <esp_task_wdt.h>
+#include <ESP32Ping.h>
 
 
 #define OLED_RESET -1
 #define SS_PIN    5
 #define RST_PIN   15
+#define LOCK_SIMULATOR 4
+#define WATCHDOG_RESET 3
+
 Adafruit_SSD1306 display(OLED_RESET);
 MFRC522::MIFARE_Key key;
 MFRC522 mfrc522(SS_PIN, RST_PIN);
+
 byte ID[5];
+uint16_t probki [16];
+int usrednij_probki()
+{
+    int suma=0;
+    int srednia=0;
+    for (uint8_t i=0; i<16; i++)
+    {
+        probki[i] = analogRead(32);
+        suma += (int)probki[i];
+    }
+    srednia = suma/16;
+    srednia = map(srednia, 0, 2900, 0,100);
+    return srednia;
+}
+const unsigned char lock_bitmap [] PROGMEM = {
+	0x00, 0x07, 0xe0, 0x00, 0x00, 0x1f, 0xf8, 0x00, 0x00, 0x7f, 0xfe, 0x00, 0x00, 0xff, 0xff, 0x00, 
+	0x00, 0xfc, 0x3f, 0x00, 0x01, 0xf0, 0x0f, 0x80, 0x01, 0xe0, 0x07, 0x80, 0x03, 0xe0, 0x07, 0xc0, 
+	0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 0x03, 0xc0, 
+	0x03, 0xc0, 0x03, 0xc0, 0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0, 
+	0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 0x0f, 0xf8, 0x1f, 0xf0, 
+	0x0f, 0xf8, 0x1f, 0xf0, 0x0f, 0xf8, 0x1f, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 
+	0x0f, 0xfc, 0x3f, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 0x0f, 0xfc, 0x3f, 0xf0, 
+	0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0, 0x0f, 0xff, 0xff, 0xf0
+};
+const unsigned char zamek_odblok [] PROGMEM = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xe0, 0x00, 0x00, 0x1f, 0xf8, 0x00, 
+	0x00, 0x3f, 0xfc, 0x00, 0x00, 0x78, 0x1e, 0x00, 0x00, 0x70, 0x0e, 0x00, 0x00, 0x70, 0x0e, 0x00, 
+	0x00, 0xe0, 0x07, 0x00, 0x00, 0xe0, 0x07, 0x00, 0x00, 0xe0, 0x07, 0x00, 0x00, 0x00, 0x07, 0x00, 
+	0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0xff, 0xff, 0x00, 0x03, 0xff, 0xff, 0xc0, 
+	0x03, 0xff, 0xff, 0xc0, 0x07, 0xff, 0xff, 0xe0, 0x07, 0xff, 0xff, 0xe0, 0x07, 0xfe, 0x7f, 0xe0, 
+	0x07, 0xfc, 0x3f, 0xe0, 0x07, 0xfc, 0x3f, 0xe0, 0x07, 0xfe, 0x7f, 0xe0, 0x07, 0xfe, 0x7f, 0xe0, 
+	0x07, 0xfe, 0x7f, 0xe0, 0x07, 0xfe, 0x7f, 0xe0, 0x07, 0xff, 0xff, 0xe0, 0x03, 0xff, 0xff, 0xc0, 
+	0x03, 0xff, 0xff, 0xc0, 0x01, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+const char* ssid     = "UPC1975F41";
+const char* password = "ccavyr4Rjmbd"; 
 
-
-const char* ssid     = "Test";
-const char* password = "12345678";
-String sprawdz_URL = "http://192.168.137.1/esp32/sprawdz_uzytkownika.php";
+String baza_URL = "http://192.168.0.220/esp32/sprawdz_uzytkownika.php";
+HTTPClient baza;
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
-  display.clearDisplay();
- 
-  Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) { 
-    delay(500);
-    Serial.print(".");
-  }
   
-  SPI.begin();   // Initiate SPI bus
-  mfrc522.PCD_Init();  // Initiate MFRC522
-  
-  
-  display.drawBitmap(0, 0, pwr_bitmap, 128, 32, WHITE);
-  display.display();
+pinMode(LOCK_SIMULATOR,OUTPUT);
 
-  delay(2000);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, wefim_bitmap, 128, 32, WHITE);
-  display.display();
-   
-  delay(2000);
-  display.clearDisplay();
+Serial.begin(115200);
+
+esp_task_wdt_init(WATCHDOG_RESET, true);
+esp_task_wdt_add(NULL);
+WiFi.mode(WIFI_STA);
+WiFi.begin(ssid, password);
+  
+  
+display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
+display.clearDisplay();
+ 
+SPI.begin();   
+mfrc522.PCD_Init(); 
+display.clearDisplay();
  
 }
 
 void loop() {
-
-	if (WiFi.status()==WL_CONNECTED)
-	{
-    
-	display.setTextColor(WHITE, BLACK);
-    display.setTextSize(1);
+  
+    display.setTextColor(WHITE, BLACK);
+    display.setTextSize(1.5);
     display.setCursor(0,0);
+    digitalWrite(LOCK_SIMULATOR, HIGH);       
+    /*Uśrednianie próbek z ADC - monitorowanie stanu zasilania*/
+    int avg = usrednij_probki();
 
-    display.println("Przyloz karte...");
-    display.println();
-    display.display();
+    /*Pingowanie hosta*/
+    bool success = Ping.ping("192.168.0.220");
+         if (success == true)
+	 {                      
+            display.clearDisplay();
+            display.setTextColor(WHITE, BLACK);
+            if (avg < 15)
+            {
+                  display.println("Bateria:       Wi-Fi:");
+                  display.println(String(avg)+"%" + "          Aktywne");
+                  display.println();
+                  display.println(" WYMIENIC AKUMULATOR!");
+                  display.display();
+            }
+            display.println("Bateria:       Wi-Fi:");
+            display.println(String(avg)+"%" + "           Aktywne");
+            display.println();
+            display.println("    PRZYLOZ KARTE: ");
+            display.display();
 
     if ( ! mfrc522.PICC_IsNewCardPresent())
         return;
@@ -71,41 +115,63 @@ void loop() {
     if ( ! mfrc522.PICC_ReadCardSerial())
         return;
    
-    display.println();
     byte bufferSize = mfrc522.uid.size;
-	String wyslij_ID;
-    HTTPClient http;
-	http.begin(sprawdz_URL);
-	http.addHeader("Content-Type", "application/x-www-form-URLencoded");
-	wyslij_ID = "wyslij_ID=";
+	  String wyslij_ID;
+    
+    baza.begin(baza_URL);
+    baza.addHeader("Content-Type", "application/x-www-form-URLencoded");
+    wyslij_ID = "wyslij_ID=";
 
-     for (byte i = 0; i < bufferSize; i++) {
-          ID[i] = mfrc522.uid.uidByte[i];
-     }
-	   for (byte i = 0; i < bufferSize; i++) {
-          wyslij_ID += String(ID[i]);
-     }
-	 Serial.print(wyslij_ID);
-	 Serial.println();
+            for (byte i = 0; i < bufferSize; i++) {
+                  ID[i] = mfrc522.uid.uidByte[i];
+            }
+            for (byte i = 0; i < bufferSize; i++) {
+                  wyslij_ID += String(ID[i]);
+            }
 
-    int httpCode = http.POST(wyslij_ID); 
-    String payload = http.getString(); 
-	
-	if (payload == "OK")
-	display.println("PROSZE WEJSC! :)");
+    Serial.println(wyslij_ID);
+    baza.POST(wyslij_ID); 
+    String payload = baza.getString(); 
 
-	else if (payload == "NOK")
-	display.println("ODRZUCONO :(");
+            if (payload == "OK")
+            {
+                digitalWrite(LOCK_SIMULATOR, LOW);
+                display.clearDisplay();
+                display.drawBitmap(0,0,zamek_odblok,32,32, WHITE);
+                display.setCursor(40, 5);
+                display.print("ZAAKCEPTOWANO");
+                display.setCursor(40, 15);
+                display.print("DOSTEP");
+                display.display();
+            }
 
-    display.println();
-    display.display();
-
-    // Halt PICC
+            else if (payload == "NOK")
+            {
+                display.clearDisplay();
+                display.drawBitmap(0,0,lock_bitmap,32,32, WHITE);
+                display.setCursor(40, 5);
+                display.print("ODRZUCONO");
+                display.setCursor(40, 15);
+                display.print("DOSTEP");
+                display.display();
+             }
+    baza.end();
+    
     mfrc522.PICC_HaltA();
-    delay(3000);      
+    delay(3000);
     display.clearDisplay();
-	}
-	else {
-    Serial.println("WiFi Disconnected");
+} 
+
+
+else {
+    display.clearDisplay();
+    display.println("Bateria:       Wi-Fi:");
+    display.println(String(avg)+"%" + "        Nieaktywne");
+    display.println();
+    display.println("    DRZWI OTWARTE");
+    display.display();
   }
+
+                
 }
+ 
