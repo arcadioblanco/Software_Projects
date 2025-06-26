@@ -1,0 +1,42 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "cwd": "${workspaceFolder}",
+      "executable": "build/${workspaceFolderBasename}.elf",
+      "name": "STM32 Debug",
+      "request": "launch",
+      "preLaunchTask": "STM32 Build",
+      "type": "cortex-debug",
+      "servertype": "stutil"
+    },
+    {
+      "showDevDebugOutput": "parsed",
+      "cwd": "${workspaceRoot}",
+      "executable": "./build/electro_EncoCanHatV2.elf",
+      "name": "Debug STM32",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "preLaunchTask": "Build STM",
+      "device": "",
+      "configFiles": [
+        "openocd.cfg"
+      ]
+    },
+    {
+      "showDevDebugOutput": "parsed",
+      "cwd": "${workspaceRoot}",
+      "executable": "./build/electro_EncoCanHatV2.elf",
+      "name": "Attach STM32",
+      "request": "attach",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "preLaunchTask": "Build STM",
+      "device": "",
+      "configFiles": [
+        "openocd.cfg"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.configureOnOpen": true,
+  "cortex-debug.armToolchainPath": "c:\\Users\\tomik\\AppData\\Roaming\\Code\\User\\globalStorage\\bmd.stm32-for-vscode\\@xpack-dev-tools\\arm-none-eabi-gcc\\10.3.1-2.3.1\\.content\\bin",
+  "cortex-debug.openocdPath": "C:\\USERS\\TOMIK\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.11.0-2.1\\.CONTENT\\BIN\\OPENOCD.EXE",
+  "files.associations": {
+    "gpio.h": "c"
+  },
+  "stm32-for-vscode.openOCDPath": false,
+  "stm32-for-vscode.armToolchainPath": false,
+  "stm32-for-vscode.makePath": false
+}
