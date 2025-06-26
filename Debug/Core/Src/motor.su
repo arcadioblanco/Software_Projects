@@ -1,0 +1,7 @@
+../Core/Src/motor.c:15:6:MOTOR_Start_Forward	16	static
+../Core/Src/motor.c:22:6:MOTOR_Start_Backward	16	static
+../Core/Src/motor.c:26:6:MOTOR_Stop	8	static
+../Core/Src/motor.c:29:9:MOTOR_Set_Position	16	static
+../Core/Src/motor.c:40:9:MOTOR_Keep_Position	8	static
+../Core/Src/motor.c:51:9:MOTOR_Set_Speed	16	static
+../Core/Src/motor.c:62:6:MOTOR_PID_Tick	24	static

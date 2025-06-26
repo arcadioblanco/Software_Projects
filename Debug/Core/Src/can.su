@@ -1,0 +1,8 @@
+../Core/Src/can.c:36:6:CAN_sendError	16	static
+../Core/Src/can.c:45:6:CAN_sendHeartbeat	8	static
+../Core/Src/can.c:52:6:HAL_CAN_RxFifo0MsgPendingCallback	40	static
+../Core/Src/can.c:298:6:MX_CAN_Init	48	static
+../Core/Src/can.c:373:6:HAL_CAN_MspInit	48	static
+../Core/Src/can.c:406:6:HAL_CAN_MspDeInit	16	static
+../Core/Src/can.c:432:6:CAN_Transmit_Encoder_Data	8	static
+../Core/Src/can.c:445:6:HAL_CAN_RxFifo0FullCallback	16	static

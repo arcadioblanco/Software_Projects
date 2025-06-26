@@ -1,0 +1,5 @@
+../Core/Src/spi.c:36:6:MX_SPI2_Init	8	static
+../Core/Src/spi.c:70:6:HAL_SPI_MspInit	48	static
+../Core/Src/spi.c:100:6:HAL_SPI_MspDeInit	16	static
+../Core/Src/spi.c:142:9:CRC_SPI_97_64bit	24	static
+../Core/Src/spi.c:165:10:SPI_Recive	40	static,ignoring_inline_asm

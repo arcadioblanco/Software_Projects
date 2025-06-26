@@ -1,0 +1,2 @@
+../Core/Src/global.c:30:9:degreesToPosition	16	static
+../Core/Src/global.c:34:9:positionToDegrees	56	static
